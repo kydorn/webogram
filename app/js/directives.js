@@ -459,6 +459,8 @@ angular.module('myApp.directives', ['myApp.filters'])
       }
     };
 
+
+
     function updateHtml (message, element) {
       var entities = message.totalEntities;
       var fromUser = message.from_id && AppUsersManager.getUser(message.from_id);
@@ -479,10 +481,22 @@ angular.module('myApp.directives', ['myApp.filters'])
           options.highlightUsername = user.username;
         }
       }
-      var html = RichTextProcessor.wrapRichText(message.message, options);
-      // console.log('dd', entities, html);
 
-      element.html(html.valueOf());
+      if (message.message.indexOf('/code ') == 0) {
+        message.message = message.message.replace('/code ', '');
+        message.hasCode = true;
+      } else {
+        message.hasCode = false;
+      }
+
+      if (message.hasCode) {
+        var html = hljs.highlightAuto(message.message);
+        console.log(html);
+        html = html.value;
+      } else {
+        var html = RichTextProcessor.wrapRichText(message.message, options).valueOf();
+      }
+      element.html(html);
     }
 
     function link ($scope, element, attrs) {
